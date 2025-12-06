@@ -1,44 +1,49 @@
 package org.example.day1
 
-import java.io.File
+import org.example.readFile
 
-fun readFile(): List<String> {
-    return File("src/main/resources/day1_input").readLines()
-}
-
-fun getRotateDestination(sequence: String): Int {
-    val destination = sequence
-        .getOrNull(0)
-        ?.uppercase()
-    return if (destination == "L") -1 else 1
-}
-
-fun getRotateDistance(sequence: String): Int {
-    return sequence.subSequence(1, sequence.length).toString().toInt()
-}
-
-fun day1(listOfSequence: List<String>): Int {
+fun day1Part1(listOfSequence: List<String>): Int {
     var dial = 50
-    var solution = 0
 
-    listOfSequence.forEach { sequence ->
+    return listOfSequence.count { sequence ->
         val steps = getRotateDistance(sequence) * getRotateDestination(sequence)
 
-        dial += steps
+        dial = Math.floorMod(dial + steps, 100)
 
-        dial = Math.floorMod(dial, 100)
-        println(dial)
-
-        if (dial == 0) {
-            solution += 1
-        }
+        dial == 0
     }
+}
 
-    return solution
+fun day1Part2(listOfSequence: List<String>): Int {
+    var dial = 50
 
+    return listOfSequence.sumOf { sequence ->
+        val dir = getRotateDestination(sequence)
+        val steps = getRotateDistance(sequence)
+
+        var passes = 0
+
+        if (dir == 1) {
+            val distToZero = 100 - dial
+
+            if (steps >= distToZero) {
+                passes = 1 + (steps - distToZero) / 100
+            }
+        } else {
+            val distToZero = if (dial == 0) 100 else dial
+
+            if (steps >= distToZero) {
+                passes = 1 + (steps - distToZero) / 100
+            }
+        }
+
+        dial = Math.floorMod(dial + (steps * dir), 100)
+
+        passes
+    }
 }
 
 fun main() {
-    println(day1(listOfSequence = readFile()))
-
+    // Example: listOf("L68", "L30", "R48", "L5", "R60", "L55", "L1", "L99", "R14", "L82")
+    println(day1Part2(listOfSequence = readFile("day1_input")))
 }
